@@ -1,0 +1,30 @@
+FROM ubuntu:24.04
+RUN apt-get update \
+    && apt-get dist-upgrade -y \
+    && apt-get autoremove -y \
+    && apt-get autoclean -y \
+    && apt-get install -y \
+        sudo \
+        nano \
+        wget \
+        curl \
+        git
+RUN useradd -G sudo -m -d /home/NAME -s /bin/bash -p "$(openssl passwd -1 PASSWORD)" NAME
+USER NAME
+WORKDIR /home/NAME
+RUN mkdir hacking \
+    && cd hacking \
+    && curl -SL https://raw.githubusercontent.com/uia-worker/is105misc/master/sem01v24/pawned.sh > pawned.sh \
+    && chmod 764 pawned.sh \
+    && cd ..
+RUN git config --global user.email "GITHUB-MAIL" \
+    && git config --global user.name "GITHUB-NAME" \
+    && git config --global url."https://github.com/".insteadOf "PAT:@github.com"
+USER root
+RUN curl -SL https://go.dev/dl/go1.22.0.linux-amd64.tar.gz | tar xvz -C /usr/local \
+    && mkdir -p github.com/GITHUB-NAME/sem02v24v2
+USER NAME
+SHELL ["/bin/bash", "-c"]
+RUN mkdir -p $HOME/go/{src,bin}
+ENV GOPATH="/home/NAME/go"
+ENV PATH="${PATH}:${GOPATH}/bin:/usr/local/go/bin"
